@@ -1,5 +1,5 @@
 export function shuffle(items,random=Math.random){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-export function nextBatch(entries,done,random=false){const seen=new Set(done);const remaining=entries.filter(e=>!seen.has(e.id));return (random?shuffle(remaining):remaining).slice(0,10).map(e=>e.id);}
+export function nextBatch(entries,done,random=false,size=10){const seen=new Set(done);const remaining=entries.filter(e=>!seen.has(e.id));return (random?shuffle(remaining):remaining).slice(0,size).map(e=>e.id);}
 export function completeBatch(done,active){return [...new Set([...done,...active])];}
 export function normalizeAnswer(value){return String(value).trim().toLocaleLowerCase('en');}
 export function spellingWord(word){return word.replace(/\s*\([^)]*\)\s*$/,'').replace(/^(bass|bow|content|minute|recount)[12]$/i,'$1').trim();}
