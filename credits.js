@@ -1,0 +1,19 @@
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export const SOURCES=[
+ ['NAWL','New Academic Word List（NAWL）','new-academic-word-list','Browne, C.; Culligan, B.; Phillips, J.'],
+ ['TSL','TOEIC Service List（TSL）','toeic-service-list','Browne, C.; Culligan, B.'],
+ ['BSL','Business Service List（BSL）','business-service-list','Browne, C.; Culligan, B.'],
+ ['FEL','The Fitness English List（FEL）','fitness-english-list','Browne, C.; Culligan, B.'],
+ ['MOEL','Medical Oral English List（MOEL）','medical-oral-english-list','Chartrand, R.; Dilenschneider, R.'],
+ ['NGSL-S','New General Service List – Spoken（NGSL-S）','ngsl-spoken','Browne, C.; Culligan, B.'],
+ ['NGSL-GR','New General Service List – Graded Reader（NGSL-GR）','ngsl-graded-reader','Browne, C.; Culligan, B.']
+];
+export function sourceNotice(sourceKey){return `<aside class="source-notice"><button type="button" data-open-credits><span class="source-info" aria-hidden="true">ⓘ</span><span>${sourceKey?esc(sourceKey)+' · 词库来源与许可':'词库来源与致谢'}</span><span class="source-license">${sourceKey?'CC BY-SA 4.0':'查看来源与授权说明'} ↗</span></button></aside>`;}
+export function setupCredits(getDecks){
+ const dialog=document.createElement('dialog');dialog.id='credits-dialog';dialog.setAttribute('aria-labelledby','credits-title');document.body.append(dialog);
+ const link=(slug,label)=>`<a href="https://www.newgeneralservicelist.com/${slug}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`;
+ document.addEventListener('click',e=>{if(!e.target.closest('[data-open-credits]'))return;const decks=getDecks(),installed=decks.filter(d=>d.sourceKey),keys=new Set(installed.map(d=>d.sourceKey));
+ dialog.innerHTML=`<div class="credits-header"><div><p class="eyebrow">OPEN VOCABULARY · CREDIT & LICENSE</p><h2 id="credits-title">词库来源与致谢</h2></div><button class="icon-button" data-close-credits aria-label="关闭来源说明">×</button></div><div class="credits-body"><p>本网站使用了 New General Service List（NGSL）Project 发布的部分英语词汇表。感谢各词表的编制者及研究团队为英语学习者提供开放的词汇资源。</p><section><h3>词库来源</h3><p><strong>New General Service List Project</strong><br>${link('','官方网站：newgeneralservicelist.com')}</p></section><section><h3>词表及创作者</h3><p class="credits-note">“已内置”表示当前网站已接入；其余词表将在文件提供后添加。</p><div class="credits-table-wrap"><table><thead><tr><th>词表</th><th>创作者</th><th>状态</th></tr></thead><tbody>${SOURCES.map(([key,name,slug,creators])=>`<tr><td>${link(slug,name)}</td><td>${esc(creators)}</td><td><span class="credit-status ${keys.has(key)?'available':''}">${keys.has(key)?'已内置':'待添加'}</span></td></tr>`).join('')}</tbody></table></div></section>${installed.length?`<section><h3>本站提供的整理版</h3>${installed.map(d=>`<div class="credits-edition"><strong>${esc(d.name)}</strong><p>${d.entryCount||d.entries?.length||0}条词目 · ${d.groupCount||d.groups?.length||0}篇配套文章</p>${d.sourceKey==='NAWL'?'<p class="credits-note">本站所收文件为959条词目的整理版；官网当前NAWL 1.2标注为957词。本站整理版不等同于未经修改的官方原表。</p>':''}${d.sourceFile?`<a href="${esc(d.sourceFile)}" download>下载本站整理版 Excel ↓</a>`:''}</div>`).join('')}</section>`:''}<section><h3>版权与授权</h3><p><span class="credits-license-badge">CC BY-SA 4.0</span></p><p>上述词表均依据 Creative Commons Attribution-ShareAlike 4.0 International（CC BY-SA 4.0）许可使用。</p><p>许可协议：<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons BY-SA 4.0 ↗</a></p><p>本站可能对原始词表进行格式整理、分组及学习功能适配，并利用AI工具补充中文释义、英文释义、例句和练习内容。实际修改内容以本站所提供的词库为准。</p><p>基于原始词表形成的改编材料，按照 CC BY-SA 4.0 的适用要求共享。网站的独立程序及其他独立内容不因此自动适用该许可。</p><p>各词表的版权归相应权利人所有。本站与原始词表编制者不存在官方合作或背书关系。</p><p>如发现来源、署名或授权信息存在错误，欢迎联系网站维护者更正。</p></section></div>`;
+ dialog.querySelector('[data-close-credits]').onclick=()=>dialog.close();dialog.showModal();});
+ dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();});
+}
